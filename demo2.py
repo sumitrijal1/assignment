@@ -55,7 +55,7 @@ import joblib
 st.title("News category prediction")
 input_text = st.text_input("Enter the news you want to predict")
 
-@st.cache_resource
+@st.cache(allow_output_mutation=True)
 def load_model():
     return joblib.load("navive_bayes.joblib")
 
