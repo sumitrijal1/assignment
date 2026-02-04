@@ -1,11 +1,51 @@
-
 import streamlit as st
 import joblib
+from pathlib import Path
 
-st.title ("Nepali news categroy prediction")
-input_text =st.text_input("enter the news you want to predict")
+# -----------------------
+# Page config
+# -----------------------
+st.set_page_config(
+    page_title="Nepali News Classifier",
+    page_icon="📰",
+    layout="centered"
+)
 
-model = joblib.load("nepali_news_classifier.joblib")
-if st.button("PREDICT"):
-    output = model.predict([input_text])
-    st.success(output[0])
+st.title("📰 Nepali News Classifier")
+
+BASE_DIR = Path("__file__").parent
+PIPE_PATH = BASE_DIR / "nepali_news_classifier.joblib"
+LE_PATH   = BASE_DIR / "nepali_news_label_encoder.joblib"
+
+@st.cache_resource
+def load_artifacts():
+    pipe = joblib.load(PIPE_PATH)
+    le = joblib.load(LE_PATH)
+    return pipe, le
+
+pipe, le = load_artifacts()
+
+# -----------------------
+# Input
+# -----------------------
+text = st.text_area(
+    "News text (Nepali)",
+    height=220,
+    placeholder="यहाँ नेपाली समाचार लेख्नुहोस्..."
+)
+
+# -----------------------
+# Predict
+# -----------------------
+if st.button("🔍 Classify", type="primary", use_container_width=True):
+    if not text.strip():
+        st.warning("Please enter some text.")
+    else:
+        # numeric prediction
+        pred_num = pipe.predict([text])[0]
+
+        # decode to label
+        pred_label = le.inverse_transform([pred_num])[0]
+
+        st.success(f"🧾 Category: **{pred_label}**")
+
