@@ -1,7 +1,6 @@
 import streamlit as st
 import joblib
 from pathlib import Path
-import sklearn
 
 # -----------------------
 # Page config
@@ -14,7 +13,7 @@ st.set_page_config(
 
 st.title("📰 Nepali News Classifier")
 
-# ✅ FIXED: correct __file__
+# ✅ Correct __file__ usage
 BASE_DIR = Path(__file__).parent
 
 PIPE_PATH = BASE_DIR / "nepali_news_classifier.joblib"
@@ -22,16 +21,9 @@ LE_PATH   = BASE_DIR / "nepali_news_label_encoder.joblib"
 
 @st.cache_resource
 def load_artifacts():
-    try:
-        pipe = joblib.load(PIPE_PATH)
-        le = joblib.load(LE_PATH)
-        return pipe, le
-    except Exception as e:
-        st.error("❌ Failed to load model files")
-        st.error(f"Error: {e}")
-        st.info(f"Python version: {tuple(__import__('sys').version_info)}")
-        st.info(f"Scikit-learn version: {sklearn.__version__}")
-        st.stop()
+    pipe = joblib.load(PIPE_PATH)
+    le = joblib.load(LE_PATH)
+    return pipe, le
 
 pipe, le = load_artifacts()
 
