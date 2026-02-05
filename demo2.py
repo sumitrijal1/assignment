@@ -46,3 +46,4 @@ if st.button("🔍 Classify", type="primary", use_container_width=True):
         pred_num = pipe.predict([text])[0]
         pred_label = le.inverse_transform([pred_num])[0]
         st.success(f"🧾 Category: **{pred_label}**")
+
