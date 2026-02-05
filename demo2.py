@@ -1,6 +1,7 @@
 import streamlit as st
 import joblib
 from pathlib import Path
+import sklearn
 
 # -----------------------
 # Page config
@@ -13,15 +14,24 @@ st.set_page_config(
 
 st.title("📰 Nepali News Classifier")
 
-BASE_DIR = Path("__file__").parent
+# ✅ FIXED: correct __file__
+BASE_DIR = Path(__file__).parent
+
 PIPE_PATH = BASE_DIR / "nepali_news_classifier.joblib"
 LE_PATH   = BASE_DIR / "nepali_news_label_encoder.joblib"
 
 @st.cache_resource
 def load_artifacts():
-    pipe = joblib.load(PIPE_PATH)
-    le = joblib.load(LE_PATH)
-    return pipe, le
+    try:
+        pipe = joblib.load(PIPE_PATH)
+        le = joblib.load(LE_PATH)
+        return pipe, le
+    except Exception as e:
+        st.error("❌ Failed to load model files")
+        st.error(f"Error: {e}")
+        st.info(f"Python version: {tuple(__import__('sys').version_info)}")
+        st.info(f"Scikit-learn version: {sklearn.__version__}")
+        st.stop()
 
 pipe, le = load_artifacts()
 
@@ -41,12 +51,6 @@ if st.button("🔍 Classify", type="primary", use_container_width=True):
     if not text.strip():
         st.warning("Please enter some text.")
     else:
-        # numeric prediction
         pred_num = pipe.predict([text])[0]
-
-        # decode to label
         pred_label = le.inverse_transform([pred_num])[0]
-
         st.success(f"🧾 Category: **{pred_label}**")
-
-
